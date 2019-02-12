@@ -30,7 +30,7 @@ module.exports = youtubeDownloadLinkCreator = async(link) => {
     return new Promise((resolve, reject) => {
         try {
             if(!link) {
-                return reject({ failed: true, msg: "invalid URL was provided" });
+                return reject(new Error("Invalid URL was provided"));
             }
             let id = "";
             try {
@@ -39,10 +39,11 @@ module.exports = youtubeDownloadLinkCreator = async(link) => {
                     let query = elems[i].split("=");
                     if(query[0] == "v") {
                         id = query[1]
+                        break;
                     }
                 }
             } catch(er){}
-            if(!id) return reject({ failed: true, msg: "Invalid URL was provided" });
+            if(!id) return reject(new Error("Invalid URL was provided"));
             let url = `http://www.youtube.com/get_video_info?video_id=${id}&el=embedded&ps=default&eurl=&gl=US&hl=en`;
             getScript(url).then((data) => {
                 let urlData = data;
@@ -51,24 +52,7 @@ module.exports = youtubeDownloadLinkCreator = async(link) => {
                 let t = {}, g = [], h = {};
 
                 if(urlData.search(/status=fail/i) != -1) {
-                    // x.forEach(element => {
-                    //     let c = element.split("[=");
-                    //     let n = c[0]; let v = c[1];
-                    //     t[n] = v;
-                    //     h[n] = decodeURIComponent(v);
-                    // });
-                   
-                    // g.push({
-                    //     url: h["url"] || "",
-                    //     quality: h["quality"] || "",
-                    //     itag: h["itag"] || "",
-                    //     type: h["type"] || "",
-                    //     error: true
-                    // });
-
-                    // return resolve(g);
-
-                    return reject({ failed: true, msg: "some error in the video format" });
+                    return reject(new Error("Some error in the video format"));
                 } else {
                     x.forEach(element => {
                         let c = element.split("=");
@@ -95,10 +79,10 @@ module.exports = youtubeDownloadLinkCreator = async(link) => {
                     return resolve(g);
                 }
             }).catch((err) => {
-                reject({ failed: true, msg: "some error on URL data fetch" });
+                reject(new Error("Some error on URL data fetch"));
             })
         } catch(err) {
-            return reject({ failed: true, msg: "Some error occured" });
+            return reject(new Error("Some error occured"));
         }
     });
 }
